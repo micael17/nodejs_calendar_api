@@ -1,0 +1,12 @@
+{
+  "name": "calendar_assignment",
+  "version": "0.0.0",
+  "description": "Calendar_Assignment",
+  "main": "server.js",
+  "author": {
+    "name": "Administrator"
+  },
+  "dependencies": {
+    "moment": "^2.18.1"
+  }
+}
