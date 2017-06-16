@@ -3,23 +3,18 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var moment = require('moment');
 
-//[Schema Setting]
-var userSchema = require('./models/userSchema');
-var privateCalSchema = require('./models/privateCalSchema');
-var publicCalSchema = require('./models/publicCalSchema');
-var groupSchema = require('./models/groupSchema');
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
 
 // [CONFIGURE ROUTER]
-var router = require('./route')(app, moment, userSchema, privateCalSchema, publicCalSchema, groupSchema);
+var router = require('./router')(app);
 
 // [RUN SERVER]
 var server = app.listen(port, function () {

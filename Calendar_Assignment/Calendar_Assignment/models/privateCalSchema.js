@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var privateCalSchema = new Schema({
     date: Date,
     schedule: String,
+    user_idx: Number,
     isBirthday: Boolean
 });
 
