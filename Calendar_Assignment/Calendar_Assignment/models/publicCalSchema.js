@@ -2,11 +2,16 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var publicCalSchema = new Schema({
-    date: Date,
+    group_id: String,
+    year: Number,
+    month: Number,
+    day: Number,
     start_time: Date,
     end_time: Date,
     schedule: String,
-    groupNum: Number    
+    
+    user_db_id: String,
+    isShow : Boolean
 });
 
 module.exports = mongoose.model('publicCal', publicCalSchema, 'publicCal');

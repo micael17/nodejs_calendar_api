@@ -6,8 +6,8 @@ var privateCalSchema = new Schema({
     start_time: Date,
     end_time: Date,
     schedule: String,
-    user_idx: Number,
-    isBirthday: Boolean
+    user_db_id: String,
+    isBirthday: Boolean,
 });
 
 module.exports = mongoose.model('privateCal', privateCalSchema, 'privateCal');

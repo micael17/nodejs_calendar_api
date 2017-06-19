@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var groupSchema = new Schema({
-	Name: String,
-	groupNum: Number
+	group_name: String,
+	user_db_id: String
 });
 
-module.exports = mongoose.model('group', groupSchema, 'group');
+module.exports = mongoose.model('calGroup', groupSchema, 'calGroup');
