@@ -1,4 +1,4 @@
-module.exports = function (app, moment, dateChker) {
+module.exports = function (app) {
     
     /*
      * [가정]
@@ -144,8 +144,6 @@ module.exports = function (app, moment, dateChker) {
                     start_time: 1
                 }
             };
-            console.log(month);
-            console.log(nextMonth);
             
             var nextYear;
             if(nextMonth < month){
@@ -162,8 +160,6 @@ module.exports = function (app, moment, dateChker) {
                     UserSchema.find({ _id : userDbId}, {_id : 0, group_id : 1}, 
                         function(err, getGroupdata){
                             var tempGroupId = getGroupdata[0].group_id;
-                            console.log(tempGroupId);
-                            
                                  //해당 그룹id를 가진 pubCal 조회
                                  PublicCalSchema.find({group_id : tempGroupId, start_time : { "$gte": new Date(year + '-' + month), "$lte" : new Date(nextYear + '-' + nextMonth)}}, 
                                     function(err, pubData){
@@ -205,7 +201,7 @@ module.exports = function (app, moment, dateChker) {
         
         //이 캘린더는 유저가 이미 로그인을 했다고 가정한다.
         //유저의 DB ID는 다음과 같다고 가정한다.
-        var userDbId = req.body.userDbId;
+        var userDbId = req.query.userDbId;
         
         
         //파라미터 확인
@@ -250,7 +246,6 @@ module.exports = function (app, moment, dateChker) {
                     UserSchema.find({ _id : userDbId}, {_id : 0, group_id : 1}, 
                         function(err, getGroupdata){
                             var tempGroupId = getGroupdata[0].group_id;
-                            console.log(tempGroupId);
                             
                                  //해당 그룹id를 가진 pubCal 조회
                                  PublicCalSchema.find({group_id : tempGroupId, start_time : { "$gte": new Date(year+"-"+month+"-"+day+"T00:00:00.000Z"), "$lte" : new Date(year+"-"+month+"-"+day+"T23:59:59.000Z")}}, 
@@ -317,7 +312,6 @@ module.exports = function (app, moment, dateChker) {
                 res.send('startTime is null');
                 return;
             case (endTime == null):
-                console.log("switch");
                 res.send('endTime is null');
                 return;
             case (schedule == null):
@@ -358,17 +352,17 @@ module.exports = function (app, moment, dateChker) {
         
         var chk = dateChker.monthDayChk(month, day);
         
-        console.log(modEndTime);
-        
         if (chk) {
             if(isBirthday == true){
                 //생일일 경우 boolean으로 생일 여부를 저장한다.
                 //주의 !!! 절대로 유저 id 입력을 틀리지 말것. 현재 예제에서는 무결성 확인을 할 수 없으니 꼭 정확히 입력할것.
                 var privateCalSchema = new PrivateCalSchema({user_db_id : userDbId, start_time : new Date(modStartTime), end_time : new Date(modEndTime), schedule : schedule, isBirthday : true});
                 privateCalSchema.save();
+                res.send('schedule saved');
             }else{
                 var privateCalSchema = new PrivateCalSchema({user_db_id : userDbId, start_time : new Date(modStartTime), end_time : new Date(modEndTime), schedule : schedule, isBirthday : false});
                 privateCalSchema.save();
+                res.send('schedule saved');
             }
         } else {
             res.send('error');
@@ -398,10 +392,10 @@ module.exports = function (app, moment, dateChker) {
         }
 
         PrivateCalSchema.remove({ _id: id, user_db_id: userDbId }, function (err, data) {
-            if(data != null){
+            if(data.result.n > 0){
                 res.send('delete success');
             }
-            else if (data == null) {
+            else if (data.result.n < 1) {
                 res.send('no match user or data');
             }else {
                 res.send('error');
@@ -448,7 +442,6 @@ module.exports = function (app, moment, dateChker) {
                 res.send('startTime is null');
                 return;
             case (endTime == null):
-                console.log("switch");
                 res.send('endTime is null');
                 return;
             case (reSchedule == null):
@@ -518,6 +511,7 @@ module.exports = function (app, moment, dateChker) {
         // 주의!! 유저 ID는 절대 틀려서는 안된다. 이 예제는 무결성 확인이 불가능하다.
         var groupSchema = new GroupSchema({group_name : groupName, user_db_id : userDbId});
         groupSchema.save();
+        res.send('group saved');
         
         res.end();
     });
@@ -559,7 +553,6 @@ module.exports = function (app, moment, dateChker) {
         }
         
          GroupSchema.remove({ _id: groupId, user_db_id : userDbId }, function (err, data) {
-             console.log(data.result.n);
             if(data.result.n > 0){
                 res.send('delete success');
             }else if(data.result.n == 0){
@@ -666,12 +659,12 @@ module.exports = function (app, moment, dateChker) {
         
         var chk = dateChker.monthDayChk(month, day);
         
-        console.log(modEndTime);
         
         if (chk) {
             //주의!! 그룹ID와 사용자DB ID는 절대 틀리면 안된다.
             var publicCal = new PublicCalSchema({user_db_id : userDbId, group_id : groupId, start_time : new Date(modStartTime), end_time : new Date(modEndTime), schedule : schedule});
             publicCal.save();
+            res.send('group schedule saved');
         }else{
             res.send('date chk err');
         }
@@ -717,7 +710,6 @@ module.exports = function (app, moment, dateChker) {
             function(err, data){
                 
                 if(data != null){
-                     console.log(data.length);
                     if(data.length > 0){
                         res.send('already exist group');
                         return;
@@ -736,8 +728,6 @@ module.exports = function (app, moment, dateChker) {
                
             });
         
-        
-        //PublicCalSchema.findOneAndUpdate({_id : id, user_db_id : userDbId, isShow : isShow});
     });
     
     //사용자는 자신의 캘린더에 표시할 캘린더 그룹을 선택할 수 있다 (2. 삭제)
@@ -766,7 +756,6 @@ module.exports = function (app, moment, dateChker) {
                }
             });
         
-        //PublicCalSchema.findOneAndUpdate({_id : id, user_db_id : userDbId, isShow : isShow});
     });
     
     //사용자는 자신의 캘린더에서 일정을 검색할 수 있어야 한다
@@ -795,12 +784,10 @@ module.exports = function (app, moment, dateChker) {
         
         PrivateCalSchema.find({user_db_id : userDbId, start_time: { "$gte": new Date(year), "$lte": new Date(year + '-12-31')}, schedule : { $regex: keyword } }, null, options, 
             function (err, prvData) {
-                if(prvData.length > 0){
                     //유저가 등록한 그룹 id 조회
                     UserSchema.find({ _id : userDbId}, {_id : 0, group_id : 1}, 
                         function(err, getGroupData){                
                             if(getGroupData.length > 0){
-                                //res.send(getGroupData);
                                 var tempGroupId = getGroupData[0].group_id;
                                 
                                      //해당 그룹id를 가진 pubCal 조회
@@ -823,9 +810,6 @@ module.exports = function (app, moment, dateChker) {
                                  res.send('private ^' + '\r' + prvData);
                             }
                     });
-                }else{
-                    res.send('no match data or user');
-                }
             });
     });
     
